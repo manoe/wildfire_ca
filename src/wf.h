@@ -29,6 +29,8 @@
 #ifndef _WF_H_
 #define _WF_H_
 
+#include <iostream>
+
 enum CellState {
     NO_FUEL,
     NOT_IGNITED,
@@ -48,7 +50,7 @@ enum VegetationType {
     PINE
 };
 
-struct Grid Cell {
+struct GridCell {
     CellState       state;
     Density         den;
     VegetationType  veg;
@@ -56,14 +58,35 @@ struct Grid Cell {
 };
 
 struct WildFireParams {
-    float p0,c1,c2,a,w_a,w_s,l;
+    float ph,c1,c2,a,w_a,w_s,l;
 };
 
 class WildFireCA {
     protected:
-        Cell **plane;
+        GridCell **plane;
+        int x_size;
+        int y_size;
+        WildFireParams params;
+
     public:
-        WildFireCA() = delete;       
+        WildFireCA() = delete;
+        WildFireCA(int x_size, int y_size, WildFireParams params) : x_size(x_size),y_size(y_size),params(params) {
+            plane=new GridCell*[x_size];
+            for(int i=0 ; i < x_size ; ++i) {
+                plane[i]=new GridCell[y_size];
+            }
+        };
+
+        ~WildFireCA() {
+            for(int i=0 ; i < x_size ; ++i) {
+                delete[] plane[i];
+            }
+            delete[] plane;
+        };
+
+        void step() {
+            std::cout<<"Step"<<std::endl;
+        };
 };
 
 #endif /* _WF_H_ */
