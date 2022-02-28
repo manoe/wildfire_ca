@@ -55,6 +55,7 @@ struct GridCell {
     Density         den;
     VegetationType  veg;
     float           elevation;
+    GridCell() : state(CellState::NOT_IGNITED), den(Density::NORMAL), veg(VegetationType::PINE), elevation(0.0) {};
 };
 
 struct WildFireParams {
