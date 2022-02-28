@@ -30,6 +30,7 @@
 #define _WF_H_
 
 #include <iostream>
+#include <vector>
 
 enum CellState {
     NO_FUEL,
@@ -50,12 +51,26 @@ enum VegetationType {
     PINE
 };
 
+struct CellPosition {
+    int x,y;
+};
+
 struct GridCell {
     CellState       state;
     Density         den;
     VegetationType  veg;
     float           elevation;
-    GridCell() : state(CellState::NOT_IGNITED), den(Density::NORMAL), veg(VegetationType::PINE), elevation(0.0) {};
+    GridCell() : GridCell(CellState::NOT_IGNITED,
+                          Density::NORMAL,
+                          VegetationType::PINE,
+                          0.0) {};
+    GridCell(CellState state,
+             Density den,
+             VegetationType veg,
+             float elevation) : state(state),
+                                den(den),
+                                veg(veg),
+                                elevation(elevation) {};
 };
 
 struct WildFireParams {
@@ -68,6 +83,19 @@ class WildFireCA {
         int x_size;
         int y_size;
         WildFireParams params;
+
+        std::vector<CellPosition> collectBurningCells() {
+            std::vector<CellPosition> burning_cells;
+            for(int i=0 ; i < x_size ; ++i) {
+                for(int j=0 ; j < y_size ; ++j) {
+                    if(CellState::BURNING==plane[i][j].state) {
+                        burning_cells.push_back({i,j});
+                    }
+                }
+            }
+            return burning_cells;
+        }
+
 
     public:
         WildFireCA() = delete;
@@ -87,6 +115,12 @@ class WildFireCA {
 
         void step() {
             std::cout<<"Step"<<std::endl;
+            plane[0][0].state=CellState::BURNING;
+            std::vector<CellPosition> cells=collectBurningCells();
+            CellPosition pos=*cells.begin();
+            if(&plane[pos.x][pos.y]==&plane[0][0]) {
+                std::cout<<plane[pos.x][pos.y].state<<std::endl;
+            }
         };
 };
 
