@@ -71,6 +71,8 @@ struct GridCell {
                                 den(den),
                                 veg(veg),
                                 elevation(elevation) {};
+
+    bool canBurn() { return CellState::NOT_IGNITED==state; };
 };
 
 struct WildFireParams {
@@ -96,6 +98,97 @@ class WildFireCA {
             return burning_cells;
         }
 
+        void burnDown(CellPosition pos) {
+            if(CellState::BURNING==plane[pos.x][pos.y].state) {
+                plane[pos.x][pos.y].state=CellState::BURNED_DOWN;
+            }
+        }
+
+        void propagateFire(CellPosition pos) {
+            if(CellState::BURNING != plane[pos.x][pos.y].state) {
+                return;
+            }
+
+            std::vector<GridCell *> neighbors;
+
+            /*
+             * ? - -
+             * - - -
+             * - - -
+             */
+            if(0 < pos.x && 0 < pos.y && plane[pos.x-1][pos.y-1].canBurn()) {
+                neighbors.push_back(&plane[pos.x-1][pos.y-1]);
+            }
+
+            /*
+             * - - -
+             * ? - -
+             * - - -
+             */
+            if(0 < pos.x && plane[pos.x-1][pos.y].canBurn()) {
+                neighbors.push_back(&plane[pos.x-1][pos.y]);
+            }
+
+            /*
+             * - - -
+             * - - -
+             * ? - -
+             */
+            if(0 < pos.x && y_size-1 > pos.y && plane[pos.x-1][pos.y+1].canBurn()) {
+                neighbors.push_back(&plane[pos.x-1][pos.y+1]);
+            }
+
+            /*
+             * - ? -
+             * - - -
+             * - - -
+             */
+            if(0 < pos.y && plane[pos.x][pos.y-1].canBurn()) {
+                neighbors.push_back(&plane[pos.x][pos.y-1]);
+            }
+
+            /*
+             * - - -
+             * - - -
+             * - ? -
+             */
+            if(y_size-1 > pos.y && plane[pos.x][pos.y+1].canBurn()) {
+                neighbors.push_back(&plane[pos.x][pos.y+1]);
+            }
+
+            /*
+             * - - ?
+             * - - -
+             * - - -
+             */
+            if(x_size-1 > pos.x && 0 < pos.y && plane[pos.x+1][pos.y-1].canBurn()) {
+                neighbors.push_back(&plane[pos.x+1][pos.y-1]);
+            }
+
+            /*
+             * - - -
+             * - - ?
+             * - - -
+             */
+            if(x_size-1 > pos.x && plane[pos.x+1][pos.y].canBurn()) {
+                neighbors.push_back(&plane[pos.x+1][pos.y]);
+            }
+
+            /*
+             * - - -
+             * - - -
+             * - - ?
+             */
+            if(x_size-1 > pos.x && y_size-1 > pos.y && plane[pos.x+1][pos.y+1].canBurn()) {
+                neighbors.push_back(&plane[pos.x+1][pos.y+1]);
+            }
+
+
+
+        }
+
+            
+
 
     public:
         WildFireCA() = delete;
@@ -117,10 +210,6 @@ class WildFireCA {
             std::cout<<"Step"<<std::endl;
             plane[0][0].state=CellState::BURNING;
             std::vector<CellPosition> cells=collectBurningCells();
-            CellPosition pos=*cells.begin();
-            if(&plane[pos.x][pos.y]==&plane[0][0]) {
-                std::cout<<plane[pos.x][pos.y].state<<std::endl;
-            }
         };
 };
 
