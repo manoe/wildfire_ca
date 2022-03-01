@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 enum CellState {
     NO_FUEL,
@@ -115,9 +116,15 @@ class WildFireCA {
             return p_den[den];
         }
 
+        float getPw(CellPosition from, CellPosition to) {
+            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0)));
+
+        }
+
         float getPropagationWindAngle(CellPosition from, CellPosition to) {
             auto x_dir = to.x-from.x;
             auto y_dir = to.y-from.y;
+            float f_angle=0;
 
             /*
              *      -1       0     +1
@@ -128,38 +135,39 @@ class WildFireCA {
              */
             if(x_dir==1) {
                 if(y_dir==-1) {
-                    return 0.25;
+                    f_angle=0.25;
                 }
                 else if(y_dir==0) {
-                    return 0.5;
+                    f_angle=0.5;
                 }
                 else if(y_dir==1) {
-                    return 0.75;
+                    f_angle=0.75;
                 }
             } else if(x_dir==0) {
                 if(y_dir==-1) {
-                    return 0.0;
+                    f_angle=0.0;
                 }
                 else if(y_dir==0) {
                     /* should throw something */
-                    return 10.0;
+                    f_angle=10.0;
                 }
                 else if(y_dir==1) {
-                    return 1;
+                    f_angle=1;
                 }
             }
             else if(x_dir==-1) {
                 if(y_dir==-1) {
-                    return 1.75;
+                    f_angle=1.75;
                 }
                 else if(y_dir==0) {
-                    return 1.5;
+                    f_angle=1.5;
                 }
                 else if(y_dir==1) {
-                    return 1.25;
+                    f_angle=1.25;
                 }
             }
-            return 10;
+
+            return std::fabs(f_angle-params.w_a);
         }
 
         void propagateFire(CellPosition pos) {
@@ -179,8 +187,7 @@ class WildFireCA {
 
 
             for(auto i : neighbors) {
-                i.second;
-//                 float p_burn=params.p_h * (1 + getPveg(i.second.veg)) * (1 + getPden(i.second.den)) * getPw();
+                float p_burn=params.p_h * (1 + getPveg(i.second.veg)) * (1 + getPden(i.second.den)) * getPw();
              }
   
         }
