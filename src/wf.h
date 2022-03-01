@@ -108,19 +108,6 @@ class WildFireCA {
             }
         }
 
-        float getPveg(VegetationType veg) {
-            return p_veg[veg];
-        }
-
-        float getPden(Density den) {
-            return p_den[den];
-        }
-
-        float getPw(CellPosition from, CellPosition to) {
-            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0)));
-
-        }
-
         float getPropagationWindAngle(CellPosition from, CellPosition to) {
             auto x_dir = to.x-from.x;
             auto y_dir = to.y-from.y;
@@ -170,6 +157,34 @@ class WildFireCA {
             return std::fabs(f_angle-params.w_a);
         }
 
+        float getSlopeLength(CellPosition from, CellPosition to) {
+             if(from.x==to.x || from.y==to.y) {
+                 return params.l;
+             }
+             return std::sqrt(2)*params.l;
+        }
+  
+        float getSlopeAngle(CellPosition from, CellPosition to) {
+            return std::atan((plane[from.x][from.y].elevation-plane[to.x][to.y].elevation)/getSlopeLength(from,to));
+        }
+
+        float getPveg(VegetationType veg) {
+            return p_veg[veg];
+        }
+
+        float getPden(Density den) {
+            return p_den[den];
+        }
+
+        float getPw(CellPosition from, CellPosition to) {
+            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0)));
+
+        }
+
+        float getPs(CellPosition from, CellPosition to) {
+            return std::exp(params.a*getSlopeAngle(from,to));
+        }
+
         void propagateFire(CellPosition pos) {
             if(CellState::BURNING != plane[pos.x][pos.y].state) {
                 return;
@@ -187,9 +202,9 @@ class WildFireCA {
 
 
             for(auto i : neighbors) {
-                float p_burn=params.p_h * (1 + getPveg(i.second.veg)) * (1 + getPden(i.second.den)) * getPw();
+                float p_burn=params.p_h * (1 + getPveg(i.second->veg)) * (1 + getPden(i.second->den)) * getPw(pos,i.first)*getPs(pos,i.first);
+                std::cout<<p_burn<<std::endl;
              }
-  
         }
 
 
