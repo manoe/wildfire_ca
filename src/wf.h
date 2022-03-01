@@ -40,15 +40,15 @@ enum CellState {
 };
 
 enum Density {
-    SPARSE,
-    NORMAL,
-    DENSE
+    SPARSE  = 0,
+    NORMAL  = 1,
+    DENSE   = 2
 };
 
 enum VegetationType {
-    AGRICULTURAL,
-    THICKETS,
-    PINE
+    AGRICULTURAL = 0,
+    THICKETS     = 1,
+    PINE         = 2
 };
 
 struct CellPosition {
@@ -86,6 +86,8 @@ class WildFireCA {
         int x_size;
         int y_size;
         WildFireParams params;
+        const float p_veg[3] = { -0.3, 0, 0.4 };
+        const float p_den[3] = { -0.4, 0, 0.3 };
 
         std::vector<CellPosition> collectBurningCells() {
             std::vector<CellPosition> burning_cells;
@@ -105,6 +107,61 @@ class WildFireCA {
             }
         }
 
+        float getPveg(VegetationType veg) {
+            return p_veg[veg];
+        }
+
+        float getPden(Density den) {
+            return p_den[den];
+        }
+
+        float getPropagationWindAngle(CellPosition from, CellPosition to) {
+            auto x_dir = to.x-from.x;
+            auto y_dir = to.y-from.y;
+
+            /*
+             *      -1       0     +1
+             * -1  7/4*PI    0    1/4*PI
+             *  0  6/4*PI   N/A   1/2*PI
+             * +1  5/4*PI    PI   3/4*PI
+             *
+             */
+            if(x_dir==1) {
+                if(y_dir==-1) {
+                    return 0.25;
+                }
+                else if(y_dir==0) {
+                    return 0.5;
+                }
+                else if(y_dir==1) {
+                    return 0.75;
+                }
+            } else if(x_dir==0) {
+                if(y_dir==-1) {
+                    return 0.0;
+                }
+                else if(y_dir==0) {
+                    /* should throw something */
+                    return 10.0;
+                }
+                else if(y_dir==1) {
+                    return 1;
+                }
+            }
+            else if(x_dir==-1) {
+                if(y_dir==-1) {
+                    return 1.75;
+                }
+                else if(y_dir==0) {
+                    return 1.5;
+                }
+                else if(y_dir==1) {
+                    return 1.25;
+                }
+            }
+            return 10;
+        }
+
         void propagateFire(CellPosition pos) {
             if(CellState::BURNING != plane[pos.x][pos.y].state) {
                 return;
@@ -120,19 +177,20 @@ class WildFireCA {
                 }
             }
 
- ///
- ///          for(GridCell *i : neighbors) {
- ///               float p_burn=params.p_h * (1 + getPveg(i.veg)) * (1 + getPden(i.den)) * getPw(
- ///           }
 
+            for(auto i : neighbors) {
+                i.second;
+//                 float p_burn=params.p_h * (1 + getPveg(i.second.veg)) * (1 + getPden(i.second.den)) * getPw();
+             }
+  
         }
-
-            
 
 
     public:
         WildFireCA() = delete;
-        WildFireCA(int x_size, int y_size, WildFireParams params) : x_size(x_size),y_size(y_size),params(params) {
+        WildFireCA(int x_size, int y_size, WildFireParams params) : x_size(x_size),
+                                                                    y_size(y_size),
+                                                                    params(params) {
             plane=new GridCell*[x_size];
             for(int i=0 ; i < x_size ; ++i) {
                 plane[i]=new GridCell[y_size];
