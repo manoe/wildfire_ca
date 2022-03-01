@@ -190,19 +190,19 @@ class WildFireCA {
                 return;
             }
 
-            std::vector<std::pair<CellPosition, GridCell *>> neighbors;
+            std::vector<CellPosition> neighbors;
 
             for(int i:  {-1, 0, 1}) {
                 for(int j: {-1, 0, 1}) {
                     if(!(i==0 && j==0) && pos.x+i >= 0 && pos.x+i < x_size && pos.y+j >= 0 && pos.y+j < y_size) {
-                        neighbors.push_back(std::pair<CellPosition, GridCell *>(CellPosition(pos.x+i,pos.y+j),&plane[pos.x+i][pos.y+j]));
+                        neighbors.push_back(CellPosition(pos.x+i,pos.y+j));
                     }
                 }
             }
 
 
             for(auto i : neighbors) {
-                float p_burn=params.p_h * (1 + getPveg(i.second->veg)) * (1 + getPden(i.second->den)) * getPw(pos,i.first)*getPs(pos,i.first);
+                float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
                 std::cout<<p_burn<<std::endl;
              }
         }
