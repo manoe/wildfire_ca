@@ -112,90 +112,17 @@ class WildFireCA {
 
             std::vector<std::pair<CellPosition, GridCell *>> neighbors;
 
-            for(int i=-1 ; i < 2 ; ++i) {
-                for(int j=-1 ; j < 2; ++j) {
+            for(int i:  {-1, 0, 1}) {
+                for(int j: {-1, 0, 1}) {
                     if(!(i==0 && j==0) && pos.x+i >= 0 && pos.x+i < x_size && pos.y+j >= 0 && pos.y+j < y_size) {
                         neighbors.push_back(std::pair<CellPosition, GridCell *>(CellPosition(pos.x+i,pos.y+j),&plane[pos.x+i][pos.y+j]));
                     }
                 }
             }
-
-//            /*
-//             * ? - -
-//             * - - -
-//             * - - -
-//             */
-//            if(0 < pos.x && 0 < pos.y && plane[pos.x-1][pos.y-1].canBurn()) {
-//                neighbors.insert(std::pair<CellPosition, GridCell *>(CellPosition(pos.x-1,pos.y-1),&plane[pos.x-1][pos.y-1]));
-//                }
-//
-//            /*
-//             * - - -
-//             * ? - -
-//             * - - -
-//             */
-//            if(0 < pos.x && plane[pos.x-1][pos.y].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x-1,pos.y),&plane[pos.x-1][pos.y]});
-//            }
-//
-//            /*
-//             * - - -
-//             * - - -
-//             * ? - -
-//             */
-//            if(0 < pos.x && y_size-1 > pos.y && plane[pos.x-1][pos.y+1].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x-1,pos.y+1),&plane[pos.x-1][pos.y+1]});
-//            }
-//
-//            /*
-//             * - ? -
-//             * - - -
-//             * - - -
-//             */
-//            if(0 < pos.y && plane[pos.x][pos.y-1].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x,pos.y-1),&plane[pos.x][pos.y-1]});
-//            }
-//
-//            /*
-//             * - - -
-//             * - - -
-//             * - ? -
-//             */
-//            if(y_size-1 > pos.y && plane[pos.x][pos.y+1].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x,pos.y+1),&plane[pos.x][pos.y+1]});
-//            }
-//
-//            /*
-//             * - - ?
-//             * - - -
-//             * - - -
-//             */
-//            if(x_size-1 > pos.x && 0 < pos.y && plane[pos.x+1][pos.y-1].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x+1,pos.y-1),&plane[pos.x+1][pos.y-1]});
-//            }
-//
-//            /*
-//             * - - -
-//             * - - ?
-//             * - - -
-//             */
-//            if(x_size-1 > pos.x && plane[pos.x+1][pos.y].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x+1,pos.y),&plane[pos.x+1][pos.y]});
-//            }
-//
-//            /*
-//             * - - -
-//             * - - -
-//             * - - ?
-//             */
-//            if(x_size-1 > pos.x && y_size-1 > pos.y && plane[pos.x+1][pos.y+1].canBurn()) {
-//                neighbors.insert({new CellPosition(pos.x+1,pos.y+1),&plane[pos.x+1][pos.y+1]});
-//            }
-//
-////           for(GridCell *i : neighbors) {
-////
-////                float p_burn=params.p_h * (1 + getPveg(i.veg)) * (1 + getPden(i.den)) * getPw(
-////            }
+ ///
+ ///          for(GridCell *i : neighbors) {
+ ///               float p_burn=params.p_h * (1 + getPveg(i.veg)) * (1 + getPden(i.den)) * getPw(
+ ///           }
 
         }
 
