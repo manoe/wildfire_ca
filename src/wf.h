@@ -32,6 +32,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <random>
 
 enum CellState {
     NO_FUEL,
@@ -199,12 +200,15 @@ class WildFireCA {
                     }
                 }
             }
-
+            std::random_device rd;
+            std::uniform_real_distribution<float> dist(0,1.0);
 
             for(auto i : neighbors) {
-                float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
-                std::cout<<p_burn<<std::endl;
+                float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);                
+                std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
+                
              }
+            burnDown(pos);
         }
 
 
@@ -229,6 +233,7 @@ class WildFireCA {
         void step() {
             std::cout<<"Step"<<std::endl;
             plane[0][1].state=CellState::BURNING;
+            plane[4][4].state=CellState::BURNING;
             std::vector<CellPosition> cells=collectBurningCells();
             for(auto i : cells) {
                 propagateFire(i);
