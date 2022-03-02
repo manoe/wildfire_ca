@@ -204,7 +204,10 @@ class WildFireCA {
             std::uniform_real_distribution<float> dist(0,1.0);
 
             for(auto i : neighbors) {
-                float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);                
+                float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
+                if(p_burn>dist(rd)) {
+                    plane[i.x][i.y].state=CellState::BURNING;
+                }
                 std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
                 
              }
