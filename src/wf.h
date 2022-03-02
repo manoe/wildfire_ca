@@ -239,6 +239,17 @@ class WildFireCA {
                 propagateFire(i);
             }
         };
+
+        friend std::ostream& operator<<(std::ostream& os, const WildFireCA& ca) {
+            for(int j=0 ; j < ca.y_size ; ++j) {
+                for(int i=0 ; i < ca.x_size ; ++i) {
+                    os<<ca.plane[i][j].state<<" ";
+                }
+                os<<std::endl;
+            }
+            return os;
+        };
+
 };
 
 #endif /* _WF_H_ */
