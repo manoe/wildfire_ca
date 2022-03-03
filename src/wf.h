@@ -102,6 +102,26 @@ class WildFireCA {
         const float p_veg[3] = { -0.3, 0, 0.4 };
         const float p_den[3] = { -0.4, 0, 0.3 };
 
+        bool canBurn(CellPosition pos) {
+            return validPosition(pos) && plane[pos.x][pos.y].state == CellState::NOT_IGNITED;
+        }
+
+        int getWindSpread() {
+            if(params.w_s > 14) {
+                return 10;
+            }
+            if(params.w_s > 12) {
+                return 8;
+            }
+            if(params.w_s > 10) {
+                return 6;
+            }
+            if(params.w_s > 8) {
+                return 4;
+            }
+            return 0;
+        }
+
         std::vector<CellPosition> collectBurningCells() {
             std::vector<CellPosition> burning_cells;
             for(int i=0 ; i < x_size ; ++i) {
@@ -118,6 +138,10 @@ class WildFireCA {
             if(CellState::BURNING==plane[pos.x][pos.y].state) {
                 plane[pos.x][pos.y].state=CellState::BURNED_DOWN;
             }
+        }
+
+        bool validPosition(CellPosition pos) {
+            return pos.x >=0 && pos.y >= 0 && pos.x < x_size && pos.y < y_size;
         }
 
         float getPropagationWindAngle(CellPosition from, CellPosition to) {
@@ -166,14 +190,14 @@ class WildFireCA {
                 }
             }
 
-            return std::fabs(M_PI*f_angle-params.w_a);
+            return std::fabs(static_cast<float>(M_PI)*f_angle-params.w_a);
         }
 
         float getSlopeLength(CellPosition from, CellPosition to) {
              if(from.x==to.x || from.y==to.y) {
                  return params.l;
              }
-             return std::sqrt(2)*params.l;
+             return std::sqrt(2.0f)*params.l;
         }
   
         float getSlopeAngle(CellPosition from, CellPosition to) {
@@ -189,7 +213,7 @@ class WildFireCA {
         }
 
         float getPw(CellPosition from, CellPosition to) {
-            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0)));
+            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0f)));
 
         }
 
@@ -206,8 +230,9 @@ class WildFireCA {
 
             for(int i:  {-1, 0, 1}) {
                 for(int j: {-1, 0, 1}) {
-                    if(!(i==0 && j==0) && pos.x+i >= 0 && pos.x+i < x_size && pos.y+j >= 0 && pos.y+j < y_size) {
-                        neighbors.push_back(CellPosition(pos.x+i,pos.y+j));
+                    CellPosition n_pos(pos.x+i,pos.y+j);
+                    if(!(i==0 && j==0) && validPosition(n_pos) && canBurn(n_pos) ) {
+                        neighbors.push_back(n_pos);
                     }
                 }
             }
@@ -218,8 +243,9 @@ class WildFireCA {
                 float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
                 if(p_burn>dist(rd)) {
                     plane[i.x][i.y].state=CellState::BURNING;
-                    if(params.sp && params.w_s > 8 /* && getPropagationWindAngle(pos,i) < */) {
-                        
+                    if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
+                        auto x_dir=i.x-pos.x, y_dir=i.y-pos.y;
+
                     }
                 }
                 std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
