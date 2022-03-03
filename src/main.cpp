@@ -29,7 +29,11 @@
 
 #include <iostream>
 #include "wf.h"
+#ifdef WF_UT
+#include <catch2/catch.hpp>
 
+
+#else
 int main() {
     WildFireParams param = { 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100 ,true};
     WildFireCA ca(20,20,param);
@@ -41,3 +45,5 @@ int main() {
     std::cout<<ca<<std::endl;
     return 0;
 }
+#endif
+
