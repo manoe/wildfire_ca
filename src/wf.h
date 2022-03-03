@@ -34,6 +34,10 @@
 #include <cmath>
 #include <random>
 
+#ifndef M_PI
+#error "PI constant not available"
+#endif
+
 enum CellState {
     NO_FUEL,
     NOT_IGNITED,
@@ -79,7 +83,14 @@ struct GridCell {
 };
 
 struct WildFireParams {
-    float p_h,c_1,c_2,a,w_a,w_s,l;
+    float p_h,  // - p_h - corrective probability coefficent
+          c_1,  // - c_1 - wind model's first coefficient - affects speed
+          c_2,  // - c_2 - wind model's second coefficient - affects angle
+          a,    // - a   - slope model's coefficient
+          w_a,  // - w_a - wind angle (North: 0, East: Pi/2, South: Pi, West: 3PI/2), rad
+          w_s,  // - w_s - wind speed, m/s
+          l;    // - l   - cell's side length, m
+    bool  sp=false;   // - sp  - fire spotting enabled/disabled
 };
 
 class WildFireCA {
@@ -155,7 +166,7 @@ class WildFireCA {
                 }
             }
 
-            return std::fabs(f_angle-params.w_a);
+            return std::fabs(M_PI*f_angle-params.w_a);
         }
 
         float getSlopeLength(CellPosition from, CellPosition to) {
@@ -207,6 +218,9 @@ class WildFireCA {
                 float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
                 if(p_burn>dist(rd)) {
                     plane[i.x][i.y].state=CellState::BURNING;
+                    if(params.sp && params.w_s > 8 /* && getPropagationWindAngle(pos,i) < */) {
+                        
+                    }
                 }
                 std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
                 
