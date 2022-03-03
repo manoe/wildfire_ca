@@ -143,6 +143,7 @@ class WildFireCA {
         WildFireParams params;
         const float p_veg[3] = { -0.3, 0, 0.4 };
         const float p_den[3] = { -0.4, 0, 0.3 };
+        int counter;
 
         bool canBurn(CellPosition pos) {
             return validPosition(pos) && plane[pos.x][pos.y].state == CellState::NOT_IGNITED;
@@ -308,7 +309,8 @@ class WildFireCA {
         WildFireCA() = delete;
         WildFireCA(int x_size, int y_size, WildFireParams params) : x_size(x_size),
                                                                     y_size(y_size),
-                                                                    params(params) {
+                                                                    params(params),
+                                                                    counter(0) {
             plane=new GridCell*[x_size];
             for(int i=0 ; i < x_size ; ++i) {
                 plane[i]=new GridCell[y_size];
@@ -323,7 +325,7 @@ class WildFireCA {
         };
 
         void step() {
-            std::cout<<"Step"<<std::endl;
+            std::cout<<"Step: "<<++counter<<std::endl;
             plane[0][1].state=CellState::BURNING;
             plane[4][4].state=CellState::BURNING;
             std::vector<CellPosition> cells=collectBurningCells();
