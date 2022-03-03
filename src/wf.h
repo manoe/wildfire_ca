@@ -289,7 +289,7 @@ class WildFireCA {
                     if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
                         auto prop_dir=i-pos;
                         auto spread=getWindSpread();
-                        for(int j=2 ; j < spread ; ++j) {
+                        for(int j=2 ; j <= spread ; ++j) {
                             auto s_pos=pos+j*prop_dir;
                             if(validPosition(s_pos)) {
                                 plane[s_pos.x][s_pos.y].state=CellState::BURNING;
@@ -324,10 +324,14 @@ class WildFireCA {
             delete[] plane;
         };
 
+        void addFireSpot(CellPosition pos) {
+            if(validPosition(pos)) {
+                plane[pos.x][pos.y].state=CellState::BURNING;
+            }
+        }
+
         void step() {
             std::cout<<"Step: "<<++counter<<std::endl;
-            plane[0][1].state=CellState::BURNING;
-            plane[4][4].state=CellState::BURNING;
             std::vector<CellPosition> cells=collectBurningCells();
             for(auto i : cells) {
                 propagateFire(i);

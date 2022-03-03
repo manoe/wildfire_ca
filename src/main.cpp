@@ -37,6 +37,8 @@
 int main() {
     WildFireParams param = { 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100 ,true};
     WildFireCA ca(20,20,param);
+    ca.addFireSpot({0,1});
+    ca.addFireSpot({4,4});
     CellPosition p_1(1,0);
     std::cout<<3*p_1-p_1<<std::endl;
     ca.step();
