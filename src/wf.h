@@ -60,6 +60,21 @@ enum VegetationType {
 struct CellPosition {
     int x,y;
     CellPosition(int x, int y) : x(x), y(y) {};
+    CellPosition& operator+=(const CellPosition &rhs) {
+        this->x+=rhs.x;
+        this->y+=rhs.y;
+        return *this;
+    }
+
+    friend CellPosition operator+(CellPosition lhs, const CellPosition & rhs) {
+        lhs+=rhs;
+        return lhs;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const CellPosition& pos) {
+        os<<pos.x<<" "<<pos.y;
+        return os;
+   };
 };
 
 struct GridCell {
@@ -245,11 +260,9 @@ class WildFireCA {
                     plane[i.x][i.y].state=CellState::BURNING;
                     if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
                         auto x_dir=i.x-pos.x, y_dir=i.y-pos.y;
-
+                        std::cout<<x_dir<<" "<<y_dir<<std::endl;
                     }
                 }
-                std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
-                
              }
             burnDown(pos);
         }
