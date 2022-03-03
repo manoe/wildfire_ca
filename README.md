@@ -1,7 +1,7 @@
 # Cellular Automata based Wildfire Model
 This project aims to implement Alexandridis' 2008 cellular automata model for forest fire spread in C++. [BETA ready]
 
-The project also aims to implement Freire's 2019 enhanced cellular automata model that simulates fire spotting. [planned]
+The project also aims to implement Freire's 2019 enhanced cellular automata model that simulates fire spotting. [BETA ready]
 
 Link to Alexandridis' orignal paper: https://doi.org/10.1016/j.amc.2008.06.046
 
