@@ -65,6 +65,13 @@ struct CellPosition {
         this->y+=rhs.y;
         return *this;
     }
+
+    CellPosition& operator-=(const CellPosition &rhs) {
+        this->x-=rhs.x;
+        this->y-=rhs.y;
+        return *this;
+    }
+
     CellPosition& operator*=(const int i) {
         this->x*=i;
         this->y*=i;
@@ -73,6 +80,11 @@ struct CellPosition {
 
     friend CellPosition operator+(CellPosition lhs, const CellPosition & rhs) {
         lhs+=rhs;
+        return lhs;
+    }
+
+    friend CellPosition operator-(CellPosition lhs, const CellPosition &rhs) {
+        lhs-=rhs;
         return lhs;
     }
 
@@ -86,11 +98,10 @@ struct CellPosition {
         return rhs;
     }
 
-
     friend std::ostream& operator<<(std::ostream& os, const CellPosition& pos) {
         os<<pos.x<<" "<<pos.y;
         return os;
-   };
+   }
 };
 
 struct GridCell {
