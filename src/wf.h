@@ -34,6 +34,10 @@
 #include <cmath>
 #include <random>
 
+#ifndef M_PI
+#error "PI constant not available"
+#endif
+
 enum CellState {
     NO_FUEL,
     NOT_IGNITED,
@@ -56,6 +60,48 @@ enum VegetationType {
 struct CellPosition {
     int x,y;
     CellPosition(int x, int y) : x(x), y(y) {};
+    CellPosition& operator+=(const CellPosition &rhs) {
+        this->x+=rhs.x;
+        this->y+=rhs.y;
+        return *this;
+    }
+
+    CellPosition& operator-=(const CellPosition &rhs) {
+        this->x-=rhs.x;
+        this->y-=rhs.y;
+        return *this;
+    }
+
+    CellPosition& operator*=(const int i) {
+        this->x*=i;
+        this->y*=i;
+        return *this;
+    }
+
+    friend CellPosition operator+(CellPosition lhs, const CellPosition & rhs) {
+        lhs+=rhs;
+        return lhs;
+    }
+
+    friend CellPosition operator-(CellPosition lhs, const CellPosition &rhs) {
+        lhs-=rhs;
+        return lhs;
+    }
+
+    friend CellPosition operator*(CellPosition lhs, const int & rhs) {
+        lhs*=rhs;
+        return lhs;
+    }
+
+    friend CellPosition operator*(const int & lhs, CellPosition rhs) {
+        rhs*=lhs;
+        return rhs;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const CellPosition& pos) {
+        os<<pos.x<<" "<<pos.y;
+        return os;
+   }
 };
 
 struct GridCell {
@@ -79,7 +125,14 @@ struct GridCell {
 };
 
 struct WildFireParams {
-    float p_h,c_1,c_2,a,w_a,w_s,l;
+    float p_h,  // - p_h - corrective probability coefficent
+          c_1,  // - c_1 - wind model's first coefficient - affects speed
+          c_2,  // - c_2 - wind model's second coefficient - affects angle
+          a,    // - a   - slope model's coefficient
+          w_a,  // - w_a - wind angle (North: 0, East: Pi/2, South: Pi, West: 3PI/2), rad
+          w_s,  // - w_s - wind speed, m/s
+          l;    // - l   - cell's side length, m
+    bool  sp=false;   // - sp  - fire spotting enabled/disabled
 };
 
 class WildFireCA {
@@ -90,6 +143,26 @@ class WildFireCA {
         WildFireParams params;
         const float p_veg[3] = { -0.3, 0, 0.4 };
         const float p_den[3] = { -0.4, 0, 0.3 };
+
+        bool canBurn(CellPosition pos) {
+            return validPosition(pos) && plane[pos.x][pos.y].state == CellState::NOT_IGNITED;
+        }
+
+        int getWindSpread() {
+            if(params.w_s > 14) {
+                return 10;
+            }
+            if(params.w_s > 12) {
+                return 8;
+            }
+            if(params.w_s > 10) {
+                return 6;
+            }
+            if(params.w_s > 8) {
+                return 4;
+            }
+            return 0;
+        }
 
         std::vector<CellPosition> collectBurningCells() {
             std::vector<CellPosition> burning_cells;
@@ -107,6 +180,10 @@ class WildFireCA {
             if(CellState::BURNING==plane[pos.x][pos.y].state) {
                 plane[pos.x][pos.y].state=CellState::BURNED_DOWN;
             }
+        }
+
+        bool validPosition(CellPosition pos) {
+            return pos.x >=0 && pos.y >= 0 && pos.x < x_size && pos.y < y_size;
         }
 
         float getPropagationWindAngle(CellPosition from, CellPosition to) {
@@ -155,14 +232,14 @@ class WildFireCA {
                 }
             }
 
-            return std::fabs(f_angle-params.w_a);
+            return std::fabs(static_cast<float>(M_PI)*f_angle-params.w_a);
         }
 
         float getSlopeLength(CellPosition from, CellPosition to) {
              if(from.x==to.x || from.y==to.y) {
                  return params.l;
              }
-             return std::sqrt(2)*params.l;
+             return std::sqrt(2.0f)*params.l;
         }
   
         float getSlopeAngle(CellPosition from, CellPosition to) {
@@ -178,7 +255,7 @@ class WildFireCA {
         }
 
         float getPw(CellPosition from, CellPosition to) {
-            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0)));
+            return std::exp(params.w_s*(params.c_1+params.c_2*(std::cos(getPropagationWindAngle(from,to))-1.0f)));
 
         }
 
@@ -195,8 +272,9 @@ class WildFireCA {
 
             for(int i:  {-1, 0, 1}) {
                 for(int j: {-1, 0, 1}) {
-                    if(!(i==0 && j==0) && pos.x+i >= 0 && pos.x+i < x_size && pos.y+j >= 0 && pos.y+j < y_size) {
-                        neighbors.push_back(CellPosition(pos.x+i,pos.y+j));
+                    CellPosition n_pos(pos.x+i,pos.y+j);
+                    if(!(i==0 && j==0) && validPosition(n_pos) && canBurn(n_pos) ) {
+                        neighbors.push_back(n_pos);
                     }
                 }
             }
@@ -207,9 +285,20 @@ class WildFireCA {
                 float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
                 if(p_burn>dist(rd)) {
                     plane[i.x][i.y].state=CellState::BURNING;
+                    if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
+                        auto prop_dir=i-pos;
+                        auto spread=getWindSpread();
+                        for(int j=2 ; j < spread ; ++j) {
+                            auto s_pos=pos+j*prop_dir;
+                            if(validPosition(s_pos)) {
+                                plane[s_pos.x][s_pos.y].state=CellState::BURNING;
+                            } else {
+                                break;
+                            }
+                        }
+
+                    }
                 }
-                std::cout<<p_burn<<" "<<dist(rd)<<std::endl;
-                
              }
             burnDown(pos);
         }
