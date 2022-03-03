@@ -286,8 +286,17 @@ class WildFireCA {
                 if(p_burn>dist(rd)) {
                     plane[i.x][i.y].state=CellState::BURNING;
                     if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
-                        auto x_dir=i.x-pos.x, y_dir=i.y-pos.y;
-                        std::cout<<x_dir<<" "<<y_dir<<std::endl;
+                        auto prop_dir=i-pos;
+                        auto spread=getWindSpread();
+                        for(int j=2 ; j < spread ; ++j) {
+                            auto s_pos=pos+j*prop_dir;
+                            if(validPosition(s_pos)) {
+                                plane[s_pos.x][s_pos.y].state=CellState::BURNING;
+                            } else {
+                                break;
+                            }
+                        }
+
                     }
                 }
              }
