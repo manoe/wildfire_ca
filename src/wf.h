@@ -65,11 +65,27 @@ struct CellPosition {
         this->y+=rhs.y;
         return *this;
     }
+    CellPosition& operator*=(const int i) {
+        this->x*=i;
+        this->y*=i;
+        return *this;
+    }
 
     friend CellPosition operator+(CellPosition lhs, const CellPosition & rhs) {
         lhs+=rhs;
         return lhs;
     }
+
+    friend CellPosition operator*(CellPosition lhs, const int & rhs) {
+        lhs*=rhs;
+        return lhs;
+    }
+
+    friend CellPosition operator*(const int & lhs, CellPosition rhs) {
+        rhs*=lhs;
+        return rhs;
+    }
+
 
     friend std::ostream& operator<<(std::ostream& os, const CellPosition& pos) {
         os<<pos.x<<" "<<pos.y;
