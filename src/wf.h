@@ -150,7 +150,7 @@ class WildFireCA {
         int counter;
 
         bool canBurn(CellPosition pos) {
-            return validPosition(pos) && plane[pos.x][pos.y].state == CellState::NOT_IGNITED;
+            return validPosition(pos) && plane[pos.x][pos.y].canBurn();
         }
 
         int getWindSpread() {

@@ -108,9 +108,50 @@ TEST_CASE("GridCell canBurn() method", "[GridCell]") {
     REQUIRE( false==a.canBurn() );
 }
 
+TEST_CASE("WildFireCA constructor/burnDown() test","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    ca.plane[0][0].state=CellState::BURNING;
+    REQUIRE( (CellState::BURNING==ca.plane[0][0].state) );
+    ca.burnDown({0,0});
+    REQUIRE( (CellState::BURNED_DOWN==ca.plane[0][0].state) );
+}
 
+TEST_CASE("WildFireCA collectBurningCells()","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    ca.plane[0][0].state=CellState::BURNING;
+    ca.plane[1][1].state=CellState::BURNING;
+    ca.plane[2][2].state=CellState::BURNING;
+    std::vector<CellPosition> cells=ca.collectBurningCells();
+    bool all_burning=false;
+    for(auto pos : cells) {
+        if(CellState::BURNING!=ca.plane[pos.x][pos.y].state) {
+            all_burning=false;
+            break;
+        } else {
+            all_burning=true;
+        }
+    }
+    REQUIRE( all_burning );
+}
+
+TEST_CASE("WildFireCA validPosition()","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    REQUIRE( (false==ca.validPosition({3,3})) );
+    REQUIRE( (true==ca.validPosition({2,2})) );
+}
+
+TEST_CASE("WildFire CA getSlopeLength() nearest neighbor","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    REQUIRE( (100.0f == ca.getSlopeLength({1,1},{1,2})) );
+}
+
+TEST_CASE("WildFire CA getSlopeLength() next-nearest neighbor (diagonal)","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    REQUIRE( (100.0f*std::sqrt(2.0f) == ca.getSlopeLength({1,1},{2,2})) );
+}
 
 #else
+
 int main() {
     WildFireParams param = { 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100 ,true};
     WildFireCA ca(20,20,param);
