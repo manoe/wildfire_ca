@@ -82,6 +82,32 @@ TEST_CASE("CellPosition * operator", "[CellPosition]") {
     REQUIRE( (16==b.x && 24==b.y) );
 }
 
+TEST_CASE("GridCell no-parameter constructor", "[GridCell]") {
+    GridCell a;
+    REQUIRE( (CellState::NOT_IGNITED==a.state) );
+    REQUIRE( (Density::NORMAL==a.den) );
+    REQUIRE( (VegetationType::PINE==a.veg) );
+    REQUIRE( (0.0f==a.elevation) );
+}
+
+TEST_CASE("GridCell parameter constructor", "[GridCell]") {
+    GridCell a(CellState::BURNING,
+               Density::DENSE,
+               VegetationType::THICKETS,
+               200.0f);
+    REQUIRE( (CellState::BURNING==a.state) );
+    REQUIRE( (Density::DENSE==a.den) );
+    REQUIRE( (VegetationType::THICKETS==a.veg) );
+    REQUIRE( (200.0f==a.elevation) );
+}
+
+TEST_CASE("GridCell canBurn() method", "[GridCell]") {
+    GridCell a;
+    REQUIRE( true==a.canBurn() );
+    a.state=CellState::BURNING;
+    REQUIRE( false==a.canBurn() );
+}
+
 
 
 #else
