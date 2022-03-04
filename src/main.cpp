@@ -30,7 +30,58 @@
 #include <iostream>
 #include "wf.h"
 #ifdef WF_UT
+#define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
+
+TEST_CASE("CellPosition constructor value assignment", "[CellPosition]") {
+    CellPosition a(2,3);
+    REQUIRE( (2==a.x && 3==a.y) );
+}
+
+TEST_CASE("CellPosition += operator", "[CellPosition]") {
+    CellPosition a(2,3),b(3,4);
+    a+=b;
+    REQUIRE( (5==a.x && 7==a.y) );
+}
+
+TEST_CASE("CellPosition + operator", "[CellPosition]") {
+    CellPosition a(2,3),b(3,4);
+    CellPosition c=a+b;
+    REQUIRE( (5==c.x && 7==c.y) );
+    a=a+b;
+    REQUIRE( (5==a.x && 7==a.y) );
+}
+
+TEST_CASE("CellPosition -= operator", "[CellPosition]") {
+    CellPosition a(2,3),b(3,4);
+    a-=b;
+    REQUIRE( (-1==a.x && -1==a.y) );
+}
+
+TEST_CASE("CellPosition - operator", "[CellPosition]") {
+    CellPosition a(2,3),b(3,4);
+    CellPosition c=a-b;
+    REQUIRE( (-1==c.x && -1==c.y) );
+    a=a-b;
+    REQUIRE( (-1==a.x && -1==a.y) );
+}
+
+TEST_CASE("CellPosition *= operator", "[CellPosition]") {
+    CellPosition a(2,3);
+    int i=8;
+    a*=i;
+    REQUIRE( (16==a.x && 24==a.y) );
+}
+
+TEST_CASE("CellPosition * operator", "[CellPosition]") {
+    CellPosition a(2,3);
+    int i=8;
+    CellPosition b=a*i;
+    REQUIRE( (16==b.x && 24==b.y) );
+    b=i*a;
+    REQUIRE( (16==b.x && 24==b.y) );
+}
+
 
 
 #else

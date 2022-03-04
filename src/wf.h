@@ -136,7 +136,11 @@ struct WildFireParams {
 };
 
 class WildFireCA {
+#ifdef WF_UT
+    public:
+#else
     protected:
+#endif
         GridCell **plane;
         int x_size;
         int y_size;
