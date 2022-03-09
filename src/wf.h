@@ -46,15 +46,17 @@ enum CellState {
 };
 
 enum Density {
-    SPARSE  = 0,
-    NORMAL  = 1,
-    DENSE   = 2
+    EMPTY    = 0,
+    SPARSE   = 1,
+    NORMAL   = 2,
+    DENSE    = 3
 };
 
 enum VegetationType {
-    AGRICULTURAL = 0,
-    THICKETS     = 1,
-    PINE         = 2
+    NO_VEGETATION = 0,
+    AGRICULTURAL  = 1,
+    THICKETS      = 2,
+    PINE          = 3
 };
 
 struct CellPosition {
@@ -121,7 +123,7 @@ struct GridCell {
                                 veg(veg),
                                 elevation(elevation) {};
 
-    bool canBurn() { return CellState::NOT_IGNITED==state; };
+    bool canBurn() { return CellState::NOT_IGNITED==state && Density::EMPTY!=den && VegetationType::NO_VEGETATION!=veg; };
 };
 
 struct WildFireParams {
@@ -145,8 +147,8 @@ class WildFireCA {
         int x_size;
         int y_size;
         WildFireParams params;
-        const float p_veg[3] = { -0.3, 0, 0.4 };
-        const float p_den[3] = { -0.4, 0, 0.3 };
+        const float p_veg[4] = { -1, -0.3, 0, 0.4 };
+        const float p_den[4] = { -1, -0.4, 0, 0.3 };
         int counter;
 
         bool canBurn(CellPosition pos) {
@@ -320,6 +322,14 @@ class WildFireCA {
                 plane[i]=new GridCell[y_size];
             }
         };
+
+        WildFireCA(int x_size, int y_size, WildFireParams params, GridCell **source_plane) : WildFireCA(x_size, y_size, params) {
+            for(int i=0 ; i < x_size ; ++i) {
+                for(int j=0 ; j < y_size ; ++j) {
+                    plane[i][j] = source_plane[i][j];
+                }
+            }
+        }
 
         ~WildFireCA() {
             for(int i=0 ; i < x_size ; ++i) {
