@@ -345,12 +345,19 @@ class WildFireCA {
         }
 
         void step() {
-            std::cout<<"Step: "<<++counter<<std::endl;
+            ++counter;
             std::vector<CellPosition> cells=collectBurningCells();
             for(auto i : cells) {
                 propagateFire(i);
             }
         };
+
+        CellState getState(CellPosition pos) {
+            if(!validPosition(pos)) {
+               throw std::string("Invalid cell position");
+            }
+            return plane[pos.x][pos.y].state;
+        }
 
         friend std::ostream& operator<<(std::ostream& os, const WildFireCA& ca) {
             for(int j=0 ; j < ca.y_size ; ++j) {
