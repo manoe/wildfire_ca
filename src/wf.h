@@ -80,6 +80,10 @@ struct CellPosition {
         return *this;
     }
 
+    friend bool operator==(const CellPosition lhs, const CellPosition rhs) {
+        return lhs.x==rhs.x && lhs.y==rhs.y;
+    }
+
     friend CellPosition operator+(CellPosition lhs, const CellPosition & rhs) {
         lhs+=rhs;
         return lhs;
@@ -344,12 +348,23 @@ class WildFireCA {
             }
         }
 
+        std::vector<CellPosition> stepAndCollect() {
+            ++counter;
+            std::vector<CellPosition> cells=collectBurningCells();
+            for(auto i : cells) {
+                propagateFire(i);
+            }
+            return cells;
+        }
+
+
         void step() {
             ++counter;
             std::vector<CellPosition> cells=collectBurningCells();
             for(auto i : cells) {
                 propagateFire(i);
             }
+            
         };
 
         CellState getState(CellPosition pos) {
