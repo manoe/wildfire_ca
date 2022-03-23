@@ -284,7 +284,7 @@ class WildFireCA {
             for(int i:  {-1, 0, 1}) {
                 for(int j: {-1, 0, 1}) {
                     CellPosition n_pos(pos.x+i,pos.y+j);
-                    if(!(i==0 && j==0) && validPosition(n_pos) && canBurn(n_pos) ) {
+                    if(!(i==0 && j==0) && canBurn(n_pos) ) {
                         neighbors.push_back(n_pos);
                     }
                 }
@@ -301,16 +301,15 @@ class WildFireCA {
                         auto spread=getWindSpread();
                         for(int j=2 ; j <= spread ; ++j) {
                             auto s_pos=pos+j*prop_dir;
-                            if(validPosition(s_pos)) {
+                            if(canBurn(s_pos)) {
                                 plane[s_pos.x][s_pos.y].state=CellState::BURNING;
                             } else {
                                 break;
                             }
                         }
-
                     }
                 }
-             }
+            }
             burnDown(pos);
         }
 
