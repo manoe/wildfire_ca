@@ -139,6 +139,7 @@ struct WildFireParams {
           w_s,  // - w_s - wind speed, m/s
           l;    // - l   - cell's side length, m
     bool  sp=false;   // - sp  - fire spotting enabled/disabled
+    int   seed=0;
 };
 
 class WildFireCA {
@@ -154,6 +155,10 @@ class WildFireCA {
         const float p_veg[4] = { -1, -0.3, 0, 0.4 };
         const float p_den[4] = { -1, -0.4, 0, 0.3 };
         int counter;
+        std::mt19937 gen;
+        std::uniform_real_distribution<float> dist;
+        std::random_device rd;
+
 
         bool canBurn(CellPosition pos) {
             return validPosition(pos) && plane[pos.x][pos.y].canBurn();
@@ -289,12 +294,10 @@ class WildFireCA {
                     }
                 }
             }
-            std::random_device rd;
-            std::uniform_real_distribution<float> dist(0,1.0);
 
             for(auto i : neighbors) {
                 float p_burn=params.p_h * (1 + getPveg(plane[i.x][i.y].veg)) * (1 + getPden(plane[i.x][i.y].den)) * getPw(pos,i)*getPs(pos,i);
-                if(p_burn>dist(rd)) {
+                if(p_burn>dist(gen)) {
                     plane[i.x][i.y].state=CellState::BURNING;
                     if(params.sp && getWindSpread() > 0 && getPropagationWindAngle(pos,i) < static_cast<float>(M_PI)/10.0f) {
                         auto prop_dir=i-pos;
@@ -324,6 +327,12 @@ class WildFireCA {
             for(int i=0 ; i < x_size ; ++i) {
                 plane[i]=new GridCell[y_size];
             }
+            if(params.seed==0) {
+                gen=std::mt19937(rd());
+            } else {
+                gen=std::mt19937(params.seed);
+            }
+            dist=std::uniform_real_distribution<float>(0,1.0);
         };
 
         WildFireCA(int x_size, int y_size, WildFireParams params, GridCell **source_plane) : WildFireCA(x_size, y_size, params) {
@@ -332,6 +341,12 @@ class WildFireCA {
                     plane[i][j] = source_plane[i][j];
                 }
             }
+            if(params.seed==0) {
+                gen=std::mt19937(rd());
+            } else {
+                gen=std::mt19937(params.seed);
+            }
+
         }
 
         ~WildFireCA() {
