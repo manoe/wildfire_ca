@@ -388,6 +388,31 @@ class WildFireCA {
             return plane[pos.x][pos.y].state;
         }
 
+        CellState** getStates(CellPosition pos, int radius) {
+            if(!validPosition(pos)) {
+                throw std::string("Invalid cell position");
+            }
+            if(radius<0) {
+                throw std::string("Invalid radius");
+            }
+
+            CellState** sub_plane=new CellState*[radius*2+1];
+            for(int i=0; i < radius*2+1; ++i) {
+                sub_plane[i]=new CellState[radius*2+1];
+            }
+
+            for(int i=0; i < radius*2+1; ++i) {
+                for(int j=0; j < radius*2+1; ++j) {
+                    if(validPosition( pos+CellPosition(i-radius,j-radius))) {
+                        sub_plane[i][j]=getState(pos+CellPosition(i-radius,j-radius));
+                    } else {
+                        sub_plane[i][j]=CellState::NO_FUEL;
+                    }
+                }
+            }
+            return sub_plane;
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const WildFireCA& ca) {
             for(int j=0 ; j < ca.y_size ; ++j) {
                 for(int i=0 ; i < ca.x_size ; ++i) {
