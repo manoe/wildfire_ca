@@ -140,14 +140,37 @@ TEST_CASE("WildFireCA validPosition()","[WildFireCA]") {
     REQUIRE( (true==ca.validPosition({2,2})) );
 }
 
-TEST_CASE("WildFire CA getSlopeLength() nearest neighbor","[WildFireCA]") {
+TEST_CASE("WildFireCA getSlopeLength() nearest neighbor","[WildFireCA]") {
     WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
     REQUIRE( (100.0f == ca.getSlopeLength({1,1},{1,2})) );
 }
 
-TEST_CASE("WildFire CA getSlopeLength() next-nearest neighbor (diagonal)","[WildFireCA]") {
+TEST_CASE("WildFireCA getSlopeLength() next-nearest neighbor (diagonal)","[WildFireCA]") {
     WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
     REQUIRE( (100.0f*std::sqrt(2.0f) == ca.getSlopeLength({1,1},{2,2})) );
+}
+
+TEST_CASE("WildFireCA getStates() simple sunny day scenario","[WildFireCA]") {
+    WildFireCA ca(3,3,{ 0.58, 0.045, 0.131, 0.078, 0, 8.1, 100, false});
+    auto states=ca.getStates(CellPosition(0,0),1);
+    REQUIRE((states[0][0] == CellState::NO_FUEL) );
+    REQUIRE((states[1][1] == CellState::NOT_IGNITED) );
+
+    ca.plane[1][1].state=CellState::BURNING;
+
+    for(int i=0 ; i < 3 ; ++i) {
+        delete states[i];
+    }
+    delete states;
+
+    states=ca.getStates(CellPosition(0,0),2);
+
+    REQUIRE(( states[3][3] == CellState::BURNING ));
+
+    for(int i=0 ; i < 3 ; ++i) {
+        delete states[i];
+    }
+    delete states;
 }
 
 #else
