@@ -413,6 +413,10 @@ class WildFireCA {
             return sub_plane;
         }
 
+        GridCell** getPlane() { return plane; };
+        int getSizeX() { return x_size; };
+        int getSizeY() { return y_size; };
+
         friend std::ostream& operator<<(std::ostream& os, const WildFireCA& ca) {
             for(int j=0 ; j < ca.y_size ; ++j) {
                 for(int i=0 ; i < ca.x_size ; ++i) {
